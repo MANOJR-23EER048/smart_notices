@@ -4,3 +4,9 @@
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
+{
+  "version": 2,
+  "routes": [
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
+}
