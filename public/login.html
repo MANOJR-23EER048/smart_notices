@@ -1,0 +1,238 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+    .box {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 15px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      width: 300px;
+      text-align: center;
+    }
+    input {
+      width: 90%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+    }
+    .btn {
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h2>Login</h2>
+    <form onsubmit="handleLogin(event)">
+      <input type="text" id="username" placeholder="Username" required><br>
+      <input type="password" id="password" placeholder="Password" required><br>
+      <input type="submit" class="btn" value="Login">
+    </form>
+  </div>
+
+  <script>
+  document.querySelector("form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      alert("Login successful!");
+      sessionStorage.setItem("loggedInUser", username);
+      window.location.href = "upload.html"; // or wherever you want
+    } else {
+      alert(data.message || "Login failed");
+    }
+  });
+</script>
+
+</body>
+</html>
+ -->
+<!-- 
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+    .box {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 15px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      width: 300px;
+      text-align: center;
+    }
+    input {
+      width: 90%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+    }
+    .btn {
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h2>Login</h2>
+    <form>
+      <input type="text" id="username" placeholder="Username" required><br>
+      <input type="password" id="password" placeholder="Password" required><br>
+      <input type="submit" class="btn" value="Login">
+    </form>
+  </div>
+
+  <script>
+    document.querySelector("form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert("Login successful!");
+        sessionStorage.setItem("loggedInUser", username);
+        window.location.href = "upload.html";
+      } else {
+        alert(data.message || "Login failed");
+      }
+    });
+  </script>
+
+</body>
+</html>
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+    .box {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 15px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      width: 300px;
+      text-align: center;
+    }
+    input {
+      width: 90%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+    }
+    .btn {
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .btn:hover { background-color: #0056b3; }
+    .message { margin-top: 10px; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Login</h2>
+  <form id="loginForm">
+    <input type="text" id="username" placeholder="Username" required><br>
+    <input type="password" id="password" placeholder="Password" required><br>
+    <input type="submit" class="btn" value="Login">
+    <div class="message" id="msg"></div>
+  </form>
+</div>
+
+<!-- link external JS -->
+<script src="login.js"></script>
+
+</body>
+</html>
