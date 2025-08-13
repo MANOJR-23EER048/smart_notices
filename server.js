@@ -19,29 +19,29 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // ===== Middleware =====
-app.use(cors());
-app.use(bodyParser.json({ limit: '10mb' })); // Base64 images large ah irukum so limit 10MB
+app.use(cors({
+    origin: process.env.FRONTEND_URL || '*', // e.g. https://smart-notice.vercel.app
+    credentials: true
+}));
+app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve uploads folder for normal images
+// Serve uploads folder
 app.use('/uploads', express.static(uploadsDir));
-
-// Serve static frontend files from "public" folder
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ===== MongoDB Connection =====
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGODB_URI || process.env.MONGO_URI)
     .then(() => console.log('✅ Connected to MongoDB Atlas'))
     .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// ===== User Schema =====
+// ===== Schemas =====
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true }
 });
 const User = mongoose.model('User', userSchema);
 
-// ===== Message Schema =====
 const messageSchema = new mongoose.Schema({
     username: String,
     text: String,
@@ -50,14 +50,10 @@ const messageSchema = new mongoose.Schema({
 });
 const Message = mongoose.model('Message', messageSchema);
 
-// ===== Multer Storage Config for file upload =====
+// ===== Multer Storage Config =====
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadsDir);
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
+    destination: (req, file, cb) => cb(null, uploadsDir),
+    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const upload = multer({ storage: storage });
 
@@ -75,18 +71,14 @@ app.post('/signup', async (req, res) => {
         if (!username || !password) {
             return res.status(400).json({ success: false, message: 'Username and password required' });
         }
-
         const existingUser = await User.findOne({ username });
         if (existingUser) {
             return res.status(400).json({ success: false, message: 'Username already exists' });
         }
-
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ username, password: hashedPassword });
         await newUser.save();
-
         res.json({ success: true, message: 'Signup successful' });
-
     } catch (err) {
         console.error('Signup error:', err);
         res.status(500).json({ success: false, message: 'Internal server error' });
@@ -100,19 +92,15 @@ app.post('/login', async (req, res) => {
         if (!username || !password) {
             return res.status(400).json({ success: false, message: 'Username and password required' });
         }
-
         const user = await User.findOne({ username });
         if (!user) {
             return res.status(400).json({ success: false, message: 'Invalid username or password' });
         }
-
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ success: false, message: 'Invalid username or password' });
         }
-
         res.json({ success: true, message: 'Login successful' });
-
     } catch (err) {
         console.error('Login error:', err);
         res.status(500).json({ success: false, message: 'Internal server error' });
@@ -122,22 +110,14 @@ app.post('/login', async (req, res) => {
 // ===== Upload Notice (Normal file upload) =====
 app.post('/upload', upload.single('image'), async (req, res) => {
     try {
-        console.log("=== Upload Debug Start ===");
-        console.log("Body:", req.body);
-        console.log("File:", req.file);
-        console.log("==========================");
-
         const { text, username } = req.body;
         if (!text && !req.file) {
             return res.status(400).json({ success: false, message: 'Text or image is required' });
         }
-
         const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
         const newMessage = new Message({ username, text, image: imagePath });
         await newMessage.save();
-
         res.json({ success: true, message: 'Upload successful', data: newMessage });
-
     } catch (err) {
         console.error('Upload error:', err);
         res.status(500).json({ success: false, message: 'Internal server error' });
@@ -148,28 +128,38 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 app.post('/upload_base64', async (req, res) => {
     try {
         const { text, username, imageBase64 } = req.body;
-
-        console.log("=== Upload Base64 Debug ===");
-        console.log("Text:", text);
-        console.log("Username:", username);
-        console.log("Image Base64 present?", !!imageBase64);
-        console.log("===========================");
-
         if (!text && !imageBase64) {
             return res.status(400).json({ success: false, message: 'Text or image is required' });
         }
-
         const newMessage = new Message({
             username: username || "guest",
             text: text || null,
             image: imageBase64 || null
         });
-
         await newMessage.save();
         res.json({ success: true, message: 'Upload successful', data: newMessage });
-
     } catch (err) {
         console.error('Upload Base64 error:', err);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+// ===== NEW: Save Message API =====
+app.post('/api/save-msg', async (req, res) => {
+    try {
+        const { username, text, image } = req.body;
+        if (!text && !image) {
+            return res.status(400).json({ success: false, message: 'Text or image is required' });
+        }
+        const newMessage = new Message({
+            username: username || "guest",
+            text: text || null,
+            image: image || null
+        });
+        await newMessage.save();
+        res.json({ success: true, message: 'Message saved successfully', data: newMessage });
+    } catch (err) {
+        console.error('Save message error:', err);
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 });
